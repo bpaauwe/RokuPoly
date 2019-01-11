@@ -7,6 +7,8 @@ MIT license.
 
 This node server is intended to support the [Roku Media Players](http://www.roku.com/).
 
+With this node server you can launch applications and send remote command to a single Roku media box. The current application running on the box is available.
+
 ## Installation
 
 1. Backup Your ISY in case of problems!
@@ -21,9 +23,12 @@ This node server is intended to support the [Roku Media Players](http://www.roku
 The settings for this node are:
 
 #### Short Poll
-   * This is how often it will update the last update time for each node.
+   * Not used
 #### Long Poll
-   * TBD
+   * Not used
+
+#### IP Address
+   * The IP Address of the Roku Media box.  Currently, this is limited to supporting a single Roku box.
 
 
 ## Requirements
@@ -48,5 +53,7 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 0.0.2 01/11/2019
+   - Initial working version published to github
 - 0.0.1 01/07/2019
    - Initial template published to github
