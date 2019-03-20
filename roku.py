@@ -239,7 +239,7 @@ class AppNode(polyinterface.Node):
             'LAUNCH': launch
             }
     drivers = [
-            {'driver': 'ST', 'value': 0, 'uom': 2},   # node server status
+            {'driver': 'ST', 'value': 1, 'uom': 2},   # node server status
             ]
 
     

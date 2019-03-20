@@ -53,6 +53,8 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 0.0.3 03/20/2019
+   - Fix online status going false after query.
 - 0.0.2 01/11/2019
    - Initial working version published to github
 - 0.0.1 01/07/2019
