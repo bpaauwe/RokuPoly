@@ -53,6 +53,8 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 0.0.5 03/27/2020
+   - Strip '&' from application names.
 - 0.0.4 12/22/2019
    - Fix requirements.txt file to have the right requirements.
 - 0.0.3 03/20/2019
