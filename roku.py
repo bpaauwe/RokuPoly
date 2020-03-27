@@ -122,14 +122,15 @@ class Controller(polyinterface.Controller):
         for child in tree.iter('*'):
             if (child.tag == 'app'):
                 # Create a node
-                LOGGER.debug(child.text + ', ' + child.attrib['id'])
-                node = AppNode(self, self.address, child.attrib['id'], child.text);
+                name = child.text.replace('&', 'and')
+                LOGGER.debug(name + ', ' + child.attrib['id'])
+                node = AppNode(self, self.address, child.attrib['id'], name);
                 node.base_url = self.base_url
                 node.status = self.update_status
                 self.addNode(node)
                 time.sleep(.35)
 
-                self.nls_map[child.attrib['id']] = (child.text, cnt)
+                self.nls_map[child.attrib['id']] = (name, cnt)
                 cnt = cnt + 1
 
         self.nls_map['0'] = ("Screensaver", 0)
