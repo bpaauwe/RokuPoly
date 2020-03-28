@@ -25,7 +25,7 @@ The settings for this node are:
 #### Short Poll
    * Not used
 #### Long Poll
-   * Not used
+   * Poll the Roku device for it's current status. Time in seconds.
 
 #### IP Address
    * The IP Address of the Roku Media box.  Currently, this is limited to supporting a single Roku box.
@@ -53,6 +53,8 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 0.0.6 03/28/2020
+   - Enable polling to get current status of Roku device.
 - 0.0.5 03/27/2020
    - Strip '&' from application names.
 - 0.0.4 12/22/2019
