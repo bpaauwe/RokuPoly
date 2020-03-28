@@ -87,7 +87,6 @@ class Controller(polyinterface.Controller):
         return '0'
 
     def longPoll(self):
-        LOGGER.debug("Polling Roku for current status.")
         self.active = self.active_app()
         if self.active == '':
             for node in self.nodes:
@@ -97,7 +96,6 @@ class Controller(polyinterface.Controller):
         else:
             self.setDriver('GV0', self.active, report=True, force=True)
         
-        LOGGER.debug('update status for ' + str(self.active))
         self.update_status(self.active)
 
     def shortPoll(self):
