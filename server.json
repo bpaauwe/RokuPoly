@@ -1,22 +1,22 @@
 {
     "name": "RokuMediaPlayer",
-    "docs": "http;//www.bobsplace.com/",
+    "docs": "https://github.com/bpaauwe/RokuPoly/README.md",
     "type": "python3",
-    "executable": "roku.py",
+    "executable": "roku_main.py",
     "install": "install.sh",
     "description": "Add support of Roku media players to the ISY994",
     "notice": "see http://www.roku.com for more information",
     "shortPoll": "5",
     "longPoll": "60",
-    "profile_version": "0.0.1",
+    "profile_version": "2.0.0",
     "credits": [
     	{
     		"title": "Roku: A node server for Roku Media Players",
     		"author": "Bob Paauwe",
-    		"version": "0.0.6",
-    		"date": "March 28, 2020",
+    		"version": "2.0.0",
+    		"date": "June 12, 2020",
     		"source": "https://github.com/bpaauwe/RokuPoly",
-		"license": "https://github.com/bpaauwe/RokuPoly/LICENSE"
+			"license": "https://github.com/bpaauwe/RokuPoly/LICENSE"
 		}
 	]
 }

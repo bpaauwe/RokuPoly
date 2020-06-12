@@ -1,0 +1,20 @@
+<nodeDefs>
+  <nodeDef id="Roku" nodeType="139" nls="ctl">
+    <sts>
+      <st id="ST" editor="bool" />
+      <st id="GV0" editor="DEBUG" />
+    </sts>
+    <cmds>
+      <sends />
+      <accepts>
+        <cmd id="DISCOVER" />
+        <cmd id="REMOVE_NOTICES_ALL" />
+        <cmd id="UPDATE_PROFILE" />
+        <cmd id="DEBUG">
+          <p id="" editor="DEBUG" init="GV0" />
+        </cmd>
+      </accepts>
+    </cmds>
+  </nodeDef>
+
+</nodeDefs>

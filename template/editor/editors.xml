@@ -1,0 +1,12 @@
+<editors>
+	<!-- Boolean -->
+	<editor id="bool">
+		<range uom="2" subset="0,1" />
+	</editor>
+	<editor id="app_id">
+		<range uom="56" min="0" max="1000000" />
+	</editor>
+	<editor id="DEBUG">
+		<range uom="25" subset="0,10,20,30,40,50" nls="DBG" />
+	</editor>
+</editors>

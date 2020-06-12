@@ -1,6 +1,9 @@
 ## Configuration
 
-The Roku node server has the following user configuration parameters:
+To configure the Roku node server, enter a name for the box as a 
+custom parameter key and the IP address of the box as the value.
 
-- IP Address   : The IP address of the Roku media box that you want to control and monitor.
+For example: Roku 1 - 192.168.1.3
+
+You can configure multiple Roku boxes
 

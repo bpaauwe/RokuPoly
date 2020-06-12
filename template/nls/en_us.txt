@@ -1,0 +1,34 @@
+# controller
+ND-Roku-NAME = Roku Media Player
+ND-Roku-ICON = Output
+ST-ctl-ST-NAME = NodeServer Online
+ST-ctl-GV0-NAME = Log Level
+ST-ctl-GV1-NAME = Active Application Name
+ST-ctl-GV2-NAME = Active Application ID
+CMD-ctl-HOME-NAME = Home
+CMD-ctl-REV-NAME = Reverse
+CMD-ctl-FWD-NAME = Forward
+CMD-ctl-PLAY-NAME = Play
+CMD-ctl-SELECT-NAME = Select
+CMD-ctl-LEFT-NAME = Left
+CMD-ctl-RIGHT-NAME = Right
+CMD-ctl-DOWN-NAME = Down
+CMD-ctl-UP-NAME = Up
+CMD-ctl-BACK-NAME = Back
+CMD-ctl-REPLAY-NAME = InstantReplay
+CMD-ctl-INFO-NAME = Info
+CMD-ctl-BACKSPACE-NAME = Backspace
+CMD-ctl-SEARCH-NAME = Search
+CMD-ctl-ENTER-NAME = Enter
+CMD-ctl-LAUNCH-NAME = Launch
+CMD-ctl-DISCOVER-NAME = Re-Discover
+CMD-ctl-REMOVE_NOTICES_ALL-NAME = Remove Notices
+CMD-ctl-UPDATE_PROFILE-NAME = Update Profile
+CMD-ctl-DEBUG-NAME = Log Level
+
+DBG-0 = Off
+DBG-10 = Debug
+DBG-20 = Info
+DBG-30 = Warning
+DBG-40 = Error
+DBG-50 = Critical
