@@ -27,8 +27,8 @@ The settings for this node are:
 #### Long Poll
    * Poll the Roku device for it's current status. Time in seconds.
 
-#### IP Address
-   * The IP Address of the Roku Media box.  Currently, this is limited to supporting a single Roku box.
+#### Roku name / ip 
+   * Add custom parameters with by suppling the name for your Roku as the key and the IP address of the Roku as the value.  You may have multiple name / ip entries.
 
 
 ## Requirements
@@ -53,6 +53,8 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 2.0.0 06/12/2020
+   - Full re-write to support multiple Roku devices.
 - 0.0.6 03/28/2020
    - Enable polling to get current status of Roku device.
 - 0.0.5 03/27/2020
