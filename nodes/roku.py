@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
 """
 Polyglot v2 node server experimental Roku Media Player control.
-Copyright (C) 2019 Robert Paauwe
+Copyright (C) 2019,2020 Robert Paauwe
 """
 import polyinterface
 import sys
 import time
-import datetime
-import socket
-import math
+#import datetime
+#import socket
+#import math
 import json
 import requests
 import node_funcs
-import write_profile
+import write_profile as profile
 from xml.etree import ElementTree
+from nodes import roku_node
 
 LOGGER = polyinterface.LOGGER
 
@@ -24,57 +25,50 @@ class Controller(polyinterface.Controller):
     def __init__(self, polyglot):
         super(Controller, self).__init__(polyglot)
         self.name = 'Roku'
-        self.address = 'r_0'
+        self.address = 'roku'
         self.primary = self.address
-        self.configured = False
-        self.myConfig = {}
-        self.base_url = "http://"
-        self.port  = 8060
-        self.ip_address = ""
-        self.active = '0'
-        self.nls_map = {}
-        self.nls_map_new = {}
         self.roku_list = {}
+        self.in_config = False
+        self.in_discover = False
 
         self.poly.onConfig(self.process_config)
 
     # Process changes to customParameters
     def process_config(self, config):
-        LOGGER.error('In process config what do we do here if anything?')
+        rediscover = False
+        if self.in_config:
+            return
+
+        self.in_config = True
+        if 'customParams' in self.polyConfig:
+            for roku_name in self.polyConfig['customParams']:
+                LOGGER.info('found ' + roku_name + ' with ip ' + self.polyConfig['customParams'][roku_name])
+                if roku_name not in self.roku_list:
+                    address = self.polyConfig['customParams'][roku_name]
+                    node_id = 'roku_' + address.split('.')[3]
+
+                    self.roku_list[roku_name] = {'ip':address, 'configured':False, 'node_id':node_id, 'apps':None }
+                    rediscover = True
+
+        if rediscover:
+            self.discover()
+
+        self.in_config = False
 
     def start(self):
         LOGGER.info('Starting node server')
 
+        self.set_logging_level()
         self.check_params()
         self.discover()
 
         LOGGER.info('Node server started')
 
-    # Find the current active application, return it's address or ''
-    def active_app(self):
-        r = requests.get(self.base_url + "/query/active-app")
-        tree = ElementTree.fromstring(r.content)
-        for child in tree.iter('*'):
-            if child.tag == 'app':
-                if child.text == 'Roku':
-                    return '0'
-                elif 'id' in child.attrib:
-                    return child.attrib['id']
-                else:
-                    return '0'
-        return '0'
-
     def longPoll(self):
-        self.active = self.active_app()
-        if self.active == '':
-            for node in self.nodes:
-                LOGGER.info(' - Clearing node ' + node)
-                if node != 'r_0' and node != 'controller':
-                    self.nodes[node].setDriver('ST', 0, report=True, force=False)
-        else:
-            self.setDriver('GV0', self.active, report=True, force=True)
-        
-        self.update_status(self.active)
+        for node in self.nodes:
+            if self.nodes[node].address != self.address:
+                LOGGER.debug('Polling ' + node)
+                self.nodes[node].longPoll()
 
     def shortPoll(self):
         pass
@@ -83,54 +77,53 @@ class Controller(polyinterface.Controller):
         for node in self.nodes:
             self.nodes[node].reportDrivers()
 
-    def build_and_push_nls(map):
-        LOGGER.info('Create and write NLS file')
-
     # Create the nodes for each device configured and query
     # to get the list of installed applications.  
     def discover(self, *args, **kwargs):
-        LOGGER.info("In Discovery...")
-        if not self.configured:
-            LOGGER.info('Skipping discovery because we aren\'t configured yet.')
+        if self.in_discover:
             return
 
-        r = requests.get(self.base_url + "/query/apps")
-        tree = ElementTree.fromstring(r.content)
-        #LOGGER.info(r.content)
-        cnt = 1
-        for child in tree.iter('*'):
-            if (child.tag == 'app'):
-                # Create a node
-                name = child.text.replace('&', 'and')
-                LOGGER.debug(name + ', ' + child.attrib['id'])
-                node = AppNode(self, self.address, child.attrib['id'], name);
-                node.base_url = self.base_url
-                node.status = self.update_status
-                self.addNode(node)
-                time.sleep(.35)
+        self.in_discover = True
+        LOGGER.info("In Discovery...")
+        for rk in self.roku_list:
+            LOGGER.debug(self.roku_list[rk])
+            if self.roku_list[rk]['configured']:
+                LOGGER.info('Roku ' + rk + ' already configured, skipping.')
+                self.in_discover = False
+                return
 
-                self.nls_map[child.attrib['id']] = (name, cnt)
-                cnt = cnt + 1
+            # query app list from roku
+            LOGGER.info('query ' + self.roku_list[rk]['ip'])
+            nls_map = {}
+            r = requests.get('http://' + self.roku_list[rk]['ip'] + ":8060/query/apps")
+            tree = ElementTree.fromstring(r.content)
+            #LOGGER.info(r.content)
+            cnt = 1
+            for child in tree.iter('*'):
+                if (child.tag == 'app'):
+                    # Create a map of applications on this roku
+                    name = child.text.replace('&', 'and')
+                    LOGGER.debug(name + ', ' + child.attrib['id'])
 
-        self.nls_map['0'] = ("Screensaver", 0)
+                    nls_map[child.attrib['id']] = (name, cnt)
+                    cnt = cnt + 1
 
-        # self.build_and_push_nls(self.nls_map)
-        write_profile.write_profile(LOGGER, self.nls_map)
+            nls_map['0'] = ("Screensaver", 0)
 
-        # Query for active app and set appropriate status
-        self.active = self.active_app()
-        for node in self.nodes:
-            if node == 'r_0':  # controller node
-                self.setDriver('GV0', self.active, report=True, force=True)
-                self.setDriver('GV1', self.nls_map[self.active][1], report=True, force=True)
-            elif node == 'controller':
-                LOGGER.info('skip controller node')
-            else:
-                if node == self.active:
-                    self.nodes[node].setDriver('ST', 1, report=True, force=False)
-                else:
-                    self.nodes[node].setDriver('ST', 0, report=True, force=False)
+            self.roku_list[rk]['configured'] = True
+            self.roku_list[rk]['apps'] = nls_map
 
+        profile.write_nls(LOGGER, self.roku_list)
+        profile.write_nodedef(LOGGER, self.roku_list)
+        self.update_profile(None)
+
+        # Create the nodes
+        for rk in self.roku_list:
+            rd = self.roku_list[rk]
+            node = roku_node.RokuNode(self, self.address, rd['node_id'], rk, rd['ip'], rd['apps'])
+            self.addNode(node)
+
+        self.in_discover = False
 
     # Delete the node server from Polyglot
     def delete(self):
@@ -148,51 +141,46 @@ class Controller(polyinterface.Controller):
     def check_params(self):
         if 'customParams' in self.polyConfig:
             for roku_name in self.polyConfig['customParams']:
-                LOGGER.error('found ' + roku_name + ' with ip ' + self.polyConfig['customParams'][roku_name])
+                LOGGER.info('found ' + roku_name + ' with ip ' + self.polyConfig['customParams'][roku_name])
+                if roku_name not in self.roku_list:
+                    address = self.polyConfig['customParams'][roku_name]
+                    node_id = 'roku_' + address.split('.')[3]
+
+                    self.roku_list[roku_name] = {'ip':address, 'configured':False, 'node_id':node_id, 'apps':None }
+        else:
+            LOGGER.error('config not found')
 
         self.removeNoticesAll()
 
     def remove_notices_all(self, command):
         self.removeNoticesAll()
 
-    def update_status(self, address):
-        LOGGER.info('Application was launched, ' + address + ' do something')
-        if self.active != '0':
-            node = self.nodes[self.active]
-            node.setDriver('ST', 0, report=True, force=False)
-        self.active = address
-        self.setDriver('GV0', address, report=True, force=True)
-        self.setDriver('GV1', self.nls_map[address][1], report=True, force=True)
+    def set_logging_level(self, level=None):
+        if level is None:
+            try:
+                level = self.get_saved_log_level()
+            except:
+                LOGGER.error('unable to get saved log level.')
+        if level is None:
+            level = 30
+        else:
+            level = int(level['value'])
 
-    def keypress(self, command):
-        # command['cmd'] holds button name
-        # command['address'] holds the node address that generated it
-        r = requests.post(self.base_url + "/keypress/" + command['cmd']);
-        LOGGER.debug ('requsts: ' + r.reason);
+        LOGGER.info('Setting log level to %d' % level)
+        LOGGER.setLevel(level)
+        self.setDriver('GV0', level)
 
-        if command['cmd'] == 'HOME':
-            self.update_status('0')
 
     commands = {
-            'HOME': keypress,
-            'REV': keypress,
-            'FWD': keypress,
-            'PLAY': keypress,
-            'SELECT': keypress,
-            'LEFT': keypress,
-            'RIGHT': keypress,
-            'DOWN': keypress,
-            'UP': keypress,
-            'BACK': keypress,
-            'REPLAY': keypress,
-            'INFO': keypress,
-            'BACKSPACE': keypress,
-            'SEARCH': keypress,
-            'ENTER': keypress,
+            'DISCOVER': discover,
+            'REMOVE_NOTICES_ALL': remove_notices_all,
+            'UPDATE_PROFILE': update_profile,
+            'DEBUG': set_logging_level,
             }
 
     drivers = [
             {'driver': 'ST', 'value': 1, 'uom': 2},   # node server status
+            {'driver': 'GV0', 'value': 0, 'uom': 25}, # Log Level
             ]
 
     

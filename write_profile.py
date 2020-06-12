@@ -13,7 +13,7 @@ VERSION_FILE = "profile/version.txt"
 # Create a dynamic NLS file with the mapping between application ID and
 # application names.
 
-def write_profile(logger, app_map):
+def write_nls(logger, roku_list):
     sd = get_server_data(logger)
     if sd is False:
         logger.error("Unable to complete without server data...")
@@ -24,7 +24,7 @@ def write_profile(logger, app_map):
         try:
             os.makedirs("profile/nls")
         except:
-            LOGGER.error('unable to create node NLS directory.')
+            logger.error('unable to create node NLS directory.')
 
     try:
         nls = open("profile/nls/en_us.txt", "w")
@@ -35,8 +35,9 @@ def write_profile(logger, app_map):
         nls.write("ND-Roku-NAME = Roku Media Player\n")
         nls.write("ND-Roku-ICON = Output\n")
         nls.write("ST-ctl-ST-NAME = NodeServer Online\n")
-        nls.write("ST-ctl-GV0-NAME = Active application id\n")
-        nls.write("ST-ctl-GV1-NAME = Active application name\n")
+        nls.write("ST-ctl-GV0-NAME = Log Level\n")
+        nls.write("ST-ctl-GV1-NAME = Active Application Name\n")
+        nls.write("ST-ctl-GV2-NAME = Active Application ID\n")
         nls.write("CMD-ctl-HOME-NAME = Home\n")
         nls.write("CMD-ctl-REV-NAME = Reverse\n")
         nls.write("CMD-ctl-FWD-NAME = Forward\n")
@@ -52,25 +53,34 @@ def write_profile(logger, app_map):
         nls.write("CMD-ctl-BACKSPACE-NAME = Backspace\n")
         nls.write("CMD-ctl-SEARCH-NAME = Search\n")
         nls.write("CMD-ctl-ENTER-NAME = Enter\n")
+        nls.write("CMD-ctl-LAUNCH-NAME = Launch\n")
+        nls.write("CMD-ctl-DISCOVER-NAME = Re-Discover\n")
+        nls.write("CMD-ctl-REMOVE_NOTICES_ALL-NAME = Remove Notices\n")
+        nls.write("CMD-ctl-UPDATE_PROFILE-NAME = Update Profile\n")
+        nls.write("CMD-ctl-DEBUG-NAME = Log Level\n")
         nls.write("\n")
-        nls.write("# Launch application node\n")
-        nls.write("ND-Application-NAME = Launcher\n")
-        nls.write("ND-Application-ICON = Output\n")
-        nls.write("CMD-app-LAUNCH-NAME = Launch it\n")
-        nls.write("\n")
-        nls.write("EN_APP-0 = Screensaver\n")
 
-        # write out the mapping
-        for appid in app_map:
-            nls.write("EN_APP-%s = %s\n" % (appid, app_map[appid][0]))
+        for rk in roku_list:
+            node_id = roku_list[rk]['node_id']
+            nls.write("ND-" + node_id + "-NAME = " + rk + "\n")
+            nls.write("ND-" + node_id + "-ICON = Output\n")
+            for app in roku_list[rk]['apps']:
+                logger.error(roku_list[rk]['apps'][app])
+                (name, cnt) = roku_list[rk]['apps'][app]
+                nls.write("%s-%d = %s\n" %(node_id, cnt, name))
+            nls.write("\n")
 
-        nls.write("EN_APP_NUM-0 = Screensaver\n")
-        for appid in app_map:
-            nls.write("EN_APP_NUM-%d = %s\n" % (app_map[appid][1], app_map[appid][0]))
+        nls.write("DBG-0 = Off\n")
+        nls.write("DBG-10 = Debug\n")
+        nls.write("DBG-20 = Info\n")
+        nls.write("DBG-30 = Warning\n")
+        nls.write("DBG-40 = Error\n")
+        nls.write("DBG-50 = Critical\n")
 
         nls.close()
     except:
-        LOGGER.error('Failed to write node NLS file.')
+        logger.error('Failed to write node NLS file.')
+        nls.close()
 
     # Update the profile version file with the info from server.json
     with open(VERSION_FILE, 'w') as outfile:
@@ -78,10 +88,81 @@ def write_profile(logger, app_map):
     outfile.close()
 
     # Create the zip file that can be uploaded to the ISY
-    write_profile_zip(logger)
+    #write_profile_zip(logger)
 
     logger.info(pfx + " done.")
 
+
+NODEDEF_TMPL = "  <nodeDef id=\"%s\" nodeType=\"139\" nls=\"%s\">\n"
+STATUS_TMPL = "      <st id=\"%s\" editor=\"_25_0_R_0_%d_N_%s\" />\n"
+LAUNCH_TMPL = "          <p id=\"\" editor=\"_25_0_R_0_%d_N_%s\" init=\"%s\" />\n"
+def write_nodedef(logger, roku_list):
+    sd = get_server_data(logger)
+    if sd is False:
+        logger.error("Unable to complete without server data...")
+        return False
+
+    nodedef = open("profile/nodedef/nodedefs.xml", "w")
+
+    # First, write the controller node definition
+    nodedef.write("<nodeDefs>\n")
+    nodedef.write(NODEDEF_TMPL % ('Roku', 'ctl'))
+    nodedef.write("    <sts>\n")
+    nodedef.write("      <st id=\"ST\" editor=\"bool\" />\n")
+    nodedef.write("      <st id=\"GV0\" editor=\"DEBUG\" />\n")
+    nodedef.write("    </sts>\n")
+    nodedef.write("    <cmds>\n")
+    nodedef.write("      <sends />\n")
+    nodedef.write("      <accepts>\n")
+    nodedef.write("        <cmd id=\"DISCOVER\" />\n")
+    nodedef.write("        <cmd id=\"REMOVE_NOTICES_ALL\" />\n")
+    nodedef.write("        <cmd id=\"UPDATE_PROFILE\" />\n")
+    nodedef.write("        <cmd id=\"DEBUG\">\n")
+    nodedef.write("          <p id=\"\" editor=\"DEBUG\" init=\"GV0\" />\n")
+    nodedef.write("        </cmd>\n")
+    nodedef.write("      </accepts>\n")
+    nodedef.write("    </cmds>\n")
+    nodedef.write("  </nodeDef>\n\n")
+
+    # Loop through and write the node defs for each device
+    for rk in roku_list:
+        logger.error(roku_list)
+        no_apps = len(roku_list[rk]['apps'])
+        node_id = roku_list[rk]['node_id']
+
+        nodedef.write(NODEDEF_TMPL % (node_id, 'ctl'))
+        nodedef.write("    <sts>\n")
+        nodedef.write("      <st id=\"GV1\" editor=\"_25_0_R_0_%d_N_%s\" />\n" % (no_apps, node_id))
+        nodedef.write("      <st id=\"GV2\" editor=\"app_id\" />\n")
+        nodedef.write("    </sts>\n")
+        nodedef.write("    <cmds>\n")
+        nodedef.write("      <sends />\n")
+        nodedef.write("      <accepts>\n")
+        nodedef.write("        <cmd id=\"HOME\" />\n")
+        nodedef.write("        <cmd id=\"REV\" />\n")
+        nodedef.write("        <cmd id=\"FWD\" />\n")
+        nodedef.write("        <cmd id=\"PLAY\" />\n")
+        nodedef.write("        <cmd id=\"SELECT\" />\n")
+        nodedef.write("        <cmd id=\"LEFT\" />\n")
+        nodedef.write("        <cmd id=\"RIGHT\" />\n")
+        nodedef.write("        <cmd id=\"DOWN\" />\n")
+        nodedef.write("        <cmd id=\"UP\" />\n")
+        nodedef.write("        <cmd id=\"BACK\" />\n")
+        nodedef.write("        <cmd id=\"REPLAY\" />\n")
+        nodedef.write("        <cmd id=\"INFO\" />\n")
+        nodedef.write("        <cmd id=\"BACKSPACE\" />\n")
+        nodedef.write("        <cmd id=\"SEARCH\" />\n")
+        nodedef.write("        <cmd id=\"ENTER\" />\n")
+        nodedef.write("        <cmd id=\"LAUNCH\">\n")
+        nodedef.write(LAUNCH_TMPL % (no_apps, node_id, 'GV1'))
+        nodedef.write("        </cmd>\n")
+        nodedef.write("      </accepts>\n")
+        nodedef.write("    </cmds>\n")
+        nodedef.write("  </nodeDef>\n\n")
+
+    nodedef.write("</nodeDefs>\n")
+
+    nodedef.close()
 
 def write_profile_zip(logger):
     src = 'profile'

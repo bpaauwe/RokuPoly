@@ -1,45 +1,20 @@
 <nodeDefs>
-    <!-- controller -->
-    <nodeDef id="Roku" nodeType="139" nls="ctl">
-        <editors />
-        <sts>
-		<st id="ST" editor="bool" />
-		<st id="GV0" editor="app_id" />
-		<st id="GV1" editor="app_name" />
-	</sts>
-        <cmds>
-		<sends />
-		<accepts>
-			<cmd id="HOME" />
-			<cmd id="REV" />
-			<cmd id="FWD" />
-			<cmd id="PLAY" />
-			<cmd id="SELECT" />
-			<cmd id="LEFT" />
-			<cmd id="RIGHT" />
-			<cmd id="DOWN" />
-			<cmd id="UP" />
-			<cmd id="BACK" />
-			<cmd id="REPLAY" />
-			<cmd id="INFO" />
-			<cmd id="BACKSPACE" />
-			<cmd id="SEARCH" />
-			<cmd id="ENTER" />
-		</accepts>
-	</cmds>
-    </nodeDef>
+  <nodeDef id="Roku" nodeType="139" nls="ctl">
+    <sts>
+      <st id="ST" editor="bool" />
+      <st id="GV0" editor="DEBUG" />
+    </sts>
+    <cmds>
+      <sends />
+      <accepts>
+        <cmd id="DISCOVER" />
+        <cmd id="REMOVE_NOTICES_ALL" />
+        <cmd id="UPDATE_PROFILE" />
+        <cmd id="DEBUG">
+          <p id="" editor="DEBUG" init="GV0" />
+        </cmd>
+      </accepts>
+    </cmds>
+  </nodeDef>
 
-    <!-- Applicaton Launcher -->
-    <nodeDef id="Application" nodeType="139" nls="app">
-        <editors />
-	<sts>
-		<st id="ST" editor="bool" />
-	</sts>
-        <cmds>
-		<sends />
-		<accepts>
-			<cmd id="LAUNCH" />
-		</accepts>
-	</cmds>
-    </nodeDef>
 </nodeDefs>
