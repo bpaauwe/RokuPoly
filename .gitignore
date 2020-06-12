@@ -1,6 +1,7 @@
 __pycache__/
 logs/
 nodes/__pycache__/
-profile/nodedef/nodedef.xml
+profile/nodedef/nodedefs.xml
 profile/nls/en_us.txt
-profile/editor/editor.xml
+profile/editor/editors.xml
+profile/version.txt
