@@ -95,23 +95,26 @@ class Controller(polyinterface.Controller):
             # query app list from roku
             LOGGER.info('query ' + self.roku_list[rk]['ip'])
             nls_map = {}
-            r = requests.get('http://' + self.roku_list[rk]['ip'] + ":8060/query/apps")
-            tree = ElementTree.fromstring(r.content)
-            #LOGGER.info(r.content)
-            cnt = 1
-            for child in tree.iter('*'):
-                if (child.tag == 'app'):
-                    # Create a map of applications on this roku
-                    name = child.text.replace('&', 'and')
-                    LOGGER.debug(name + ', ' + child.attrib['id'])
+            try:
+                r = requests.get('http://' + self.roku_list[rk]['ip'] + ":8060/query/apps")
+                tree = ElementTree.fromstring(r.content)
+                #LOGGER.info(r.content)
+                cnt = 1
+                for child in tree.iter('*'):
+                    if (child.tag == 'app'):
+                        # Create a map of applications on this roku
+                        name = child.text.replace('&', 'and')
+                        LOGGER.debug(name + ', ' + child.attrib['id'])
 
-                    nls_map[child.attrib['id']] = (name, cnt)
-                    cnt = cnt + 1
+                        nls_map[child.attrib['id']] = (name, cnt)
+                        cnt = cnt + 1
 
-            nls_map['0'] = ("Screensaver", 0)
+                nls_map['0'] = ("Screensaver", 0)
 
-            self.roku_list[rk]['configured'] = True
-            self.roku_list[rk]['apps'] = nls_map
+                self.roku_list[rk]['configured'] = True
+                self.roku_list[rk]['apps'] = nls_map
+            except:
+                LOGGER.error('Query failed for ' + self.roku_list[rk]['ip'])
 
         profile.write_nls(LOGGER, self.roku_list)
         profile.write_nodedef(LOGGER, self.roku_list)
