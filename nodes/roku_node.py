@@ -36,7 +36,13 @@ class RokuNode(polyinterface.Node):
     # Find the current active application, return it's address or ''
     def active_app(self):
         url = 'http://' + self.ip + ':8060/query/active-app'
-        r = requests.get(url)
+        try:
+            r = requests.get(url)
+        except Exception as e:
+            LOGGER.error(str(e))
+            LOGGER.error(e)
+            return 0
+
         tree = ElementTree.fromstring(r.content)
         for child in tree.iter('*'):
             if child.tag == 'app':
