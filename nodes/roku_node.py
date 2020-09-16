@@ -55,8 +55,8 @@ class RokuNode(polyinterface.Node):
         return '0'
 
     def launch(self, command):
-        LOGGER.info('Launch app ' + self.name + "/" + command['value'])
-        LOGGER.info(command)
+        LOGGER.debug('Launch app ' + self.name + "/" + command['value'])
+        LOGGER.debug(command)
         # need to convert value (count) into app ID.  self.apps[appid] = (name, count)
         for appid in self.apps:
             if self.apps[appid][1] == int(command['value']):
