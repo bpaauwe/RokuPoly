@@ -65,7 +65,7 @@ def write_nls(logger, roku_list):
             nls.write("ND-" + node_id + "-NAME = " + rk + "\n")
             nls.write("ND-" + node_id + "-ICON = Output\n")
             for app in roku_list[rk]['apps']:
-                logger.error(roku_list[rk]['apps'][app])
+                logger.debug(roku_list[rk]['apps'][app])
                 (name, cnt) = roku_list[rk]['apps'][app]
                 nls.write("%s-%d = %s\n" %(node_id, cnt, name))
             nls.write("\n")
@@ -126,7 +126,7 @@ def write_nodedef(logger, roku_list):
 
     # Loop through and write the node defs for each device
     for rk in roku_list:
-        logger.error(roku_list)
+        logger.debug(roku_list)
         no_apps = len(roku_list[rk]['apps'])
         node_id = roku_list[rk]['node_id']
 
