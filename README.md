@@ -53,6 +53,10 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 2.0.1 09/16/2020
+  - Move some error/info log messages to debug level to reduce clutter.
+  - Handle connection error when getting the current running app.
+  - Handle failure when connecting to a device.
 - 2.0.0 06/12/2020
    - Full re-write to support multiple Roku devices.
 - 0.0.6 03/28/2020
