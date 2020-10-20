@@ -31,7 +31,10 @@ class RokuNode(polyinterface.Node):
     def update_status(self, address):
         self.active = address
         self.setDriver('GV2', address, report=True, force=True)
-        self.setDriver('GV1', self.apps[address][1], report=True, force=True)
+        if address in self.apps:
+            self.setDriver('GV1', self.apps[address][1], report=True, force=True)
+        else:
+            LOGGER.error('App address ' + str(address) + ' is not mapped to an appliction.')
 
     # Find the current active application, return it's address or ''
     def active_app(self):
