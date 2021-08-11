@@ -127,7 +127,12 @@ def write_nodedef(logger, roku_list):
     # Loop through and write the node defs for each device
     for rk in roku_list:
         logger.debug(roku_list)
-        no_apps = len(roku_list[rk]['apps'])
+
+        try:
+            no_apps = len(roku_list[rk]['apps'])
+        except:
+            no_apps = 0
+
         node_id = roku_list[rk]['node_id']
 
         nodedef.write(NODEDEF_TMPL % (node_id, 'ctl'))
