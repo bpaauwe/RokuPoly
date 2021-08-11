@@ -13,8 +13,8 @@
     	{
     		"title": "Roku: A node server for Roku Media Players",
     		"author": "Bob Paauwe",
-    		"version": "2.0.2",
-    		"date": "October 20, 2020",
+    		"version": "2.0.3",
+    		"date": "August 11, 2021",
     		"source": "https://github.com/bpaauwe/RokuPoly",
 			"license": "https://github.com/bpaauwe/RokuPoly/LICENSE"
 		}

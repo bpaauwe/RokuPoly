@@ -53,6 +53,8 @@ The Roku nodeserver keeps track of the version number and when a profile rebuild
 
 # Release Notes
 
+- 2.0.3 08/11/2021
+  - Handle case where roku device has no applications installed.
 - 2.0.2 10/20/2020
   - verify app is on list before updating node with running app.
 - 2.0.1 09/16/2020
